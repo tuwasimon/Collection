@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 950px; margin: 40px auto; background: #fff; border-radius: 14px; box-shadow: 0 2px 16px #e0e0e0; padding: 32px;">
+    <h2 style="color:#2980b9; margin-bottom: 24px; text-align:center;">Admin Dashboard</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:1.08em;">
+        <tr style="background:#f0f4fa;">
+            <th style="padding:12px;">Username</th>
+            <th style="padding:12px;">Phone</th>
+            <th style="padding:12px;">Account Name</th>
+            <th style="padding:12px;">Account Number</th>
+            <th style="padding:12px;">Bank Name</th>
+            <th style="padding:12px;">Translations</th>
+            <th style="padding:12px;">Actions</th>
+        </tr>
+        {% for user in users %}
+        <tr style="background:{{ loop.index0 % 2 == 0 and '#fafbfc' or '#f5f7fa' }};">
+            <td style="padding:10px;">{{ user.username }}</td>
+            <td style="padding:10px;">{{ user.phone }}</td>
+            <td style="padding:10px;">{{ user.account_name or '-' }}</td>
+            <td style="padding:10px;">{{ user.account_number or '-' }}</td>
+            <td style="padding:10px;">{{ user.bank_name or '-' }}</td>
+            <td style="padding:10px; text-align:center;">{{ user.translations|length }}</td>
+            <td style="padding:10px;">
+                <a href="{{ url_for('admin_user_detail', user_id=user.id) }}" style="background:#2980b9; color:#fff; border-radius:5px; padding:6px 14px; text-decoration:none; margin-right:6px;">View</a>
+                {% if not user.is_admin %}
+                <form method="post" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Delete this user and all their translations?');">
+                    <button type="submit" style="background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:6px 14px; cursor:pointer;">Delete</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

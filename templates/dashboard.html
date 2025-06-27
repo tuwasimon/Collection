@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 30px 0;">
+    <div style="background: #f8f8f8; border-radius: 14px; box-shadow: 0 2px 12px #eee; padding: 28px 32px; margin-bottom: 28px; text-align:center;">
+        <h2 style="margin-top:0; color:#2980b9;">Welcome, {{ current_user.username }}!</h2>
+        
+    </div>
+
+    <div style="background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #e0e0e0; padding: 22px 18px;">
+        <h3 style="color:#2c3e50; margin-top:0;">Translate English Words</h3>
+        <form method="post" action="{{ url_for('submit_translations') }}" id="translationForm">
+            <input type="hidden" name="language_id" value="{{ selected_language_id }}">
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f0f4fa;">
+                    <th style="padding:8px;">English</th>
+                    <th style="padding:8px;">Your Translation</th>
+                </tr>
+                {% for sentence in sentences %}
+                <tr>
+                    <td style="padding:8px;">{{ sentence.english_text }}</td>
+                    <td style="padding:8px;">
+                        <input type="text" name="translations_{{ sentence.id }}" class="translation-input" style="width:95%; padding:7px; border-radius:5px; border:1px solid #ccc;">
+                        <input type="hidden" name="sentence_ids" value="{{ sentence.id }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% if pagination.page == pagination.pages %}
+            <div style="text-align:right; margin-top:18px;">
+                <button id="submitBtn" type="submit"
+                    style="padding: 10px 26px; background: #bbb; color: #fff; border: none; border-radius: 7px; font-size: 1.08em; cursor: not-allowed; transition: background 0.2s;"
+                    disabled>
+                    Submit Translations
+                </button>
+            </div>
+            {% endif %}
+        </form>
+        <!-- Pagination controls OUTSIDE the form -->
+        {% if pagination.pages > 1 %}
+        <div style="display:flex; justify-content:center; gap:18px; margin-top:24px;">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('dashboard', page=pagination.prev_num, language_id=selected_language_id) }}" style="text-decoration:none;">
+                    <button style="padding:8px 18px; border-radius:6px; border:none; background:#eee; color:#2980b9; font-weight:500; cursor:pointer;">Previous</button>
+                </a>
+            {% endif %}
+            <span style="align-self:center; color:#888;">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+            {% if pagination.has_next %}
+                <a href="{{ url_for('dashboard', page=pagination.next_num, language_id=selected_language_id) }}" style="text-decoration:none;">
+                    <button style="padding:8px 18px; border-radius:6px; border:none; background:#eee; color:#2980b9; font-weight:500; cursor:pointer;">Next</button>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if pagination.page == pagination.pages %}
+    <div id="accountDetailsSection" style="margin-bottom:18px;">
+        <h4 style="margin-bottom:8px; color:#2980b9;">Enter your account details to receive your reward:</h4>
+        <input type="text" name="account_name" id="account_name" placeholder="Account Name" required style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em; margin-bottom:8px; width:100%;">
+        <input type="text" name="account_number" id="account_number" placeholder="Account Number" required style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em; margin-bottom:8px; width:100%;">
+        <input type="text" name="bank_name" id="bank_name" placeholder="Bank Name" required style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em; width:100%;">
+    </div>
+    {% endif %}
+</div>
+<script>
+    // Unique key for this user and language
+    const storageKey = "translations_{{ current_user.id }}_{{ selected_language_id }}";
+
+    // Save all current inputs to localStorage
+    function saveTranslations() {
+        // Get existing data from localStorage
+        let data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        // Update only the inputs on this page
+        const inputs = document.querySelectorAll('.translation-input');
+        inputs.forEach(input => {
+            data[input.name] = input.value;
+        });
+        localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    // Restore inputs from localStorage
+    function restoreTranslations() {
+        const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        const inputs = document.querySelectorAll('.translation-input');
+        inputs.forEach(input => {
+            if (data[input.name]) {
+                input.value = data[input.name];
+            }
+        });
+    }
+
+    // Enable submit only if all translation fields are filled
+    function checkTranslations() {
+        const inputs = document.querySelectorAll('.translation-input');
+        const submitBtn = document.getElementById('submitBtn');
+        let allFilled = true;
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                allFilled = false;
+            }
+        });
+        if (submitBtn) {
+            submitBtn.disabled = !allFilled;
+            submitBtn.style.background = allFilled ? "#27ae60" : "#bbb";
+            submitBtn.style.cursor = allFilled ? "pointer" : "not-allowed";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        restoreTranslations();
+        const inputs = document.querySelectorAll('.translation-input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                saveTranslations();
+                checkTranslations();
+            });
+        });
+        checkTranslations();
+    });
+
+    // Only clear localStorage if the submit button was pressed
+    document.getElementById('translationForm').addEventListener('submit', function(e) {
+        // Only clear if the submit button is enabled (green)
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn && !submitBtn.disabled) {
+            localStorage.removeItem(storageKey);
+        } else {
+            // Prevent accidental form submit if button is disabled
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 60px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #eee; padding: 32px;">
+    <h2 style="color:#2980b9; text-align:center;">Enter Account Details</h2>
+    <p style="color:#444; text-align:center; margin-bottom:18px;">
+        Your translations have been submitted and will be reviewed.<br>
+        <b>If approved, you’ll be credited your reward directly to your account.</b>
+    </p>
+    <form method="post">
+        <input type="text" name="account_name" placeholder="Account Name" required style="padding: 12px; border-radius: 7px; border: 1px solid #ccc; font-size: 1em; margin-bottom:12px; width:100%;">
+        <input type="text" name="account_number" placeholder="Account Number" required style="padding: 12px; border-radius: 7px; border: 1px solid #ccc; font-size: 1em; margin-bottom:12px; width:100%;">
+        <input type="text" name="bank_name" placeholder="Bank Name" required style="padding: 12px; border-radius: 7px; border: 1px solid #ccc; font-size: 1em; margin-bottom:18px; width:100%;">
+        <button type="submit" style="padding: 12px; background: #27ae60; color: #fff; border: none; border-radius: 7px; font-size: 1.1em; width:100%; cursor: pointer;">Submit</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Translations for {{ user.username }}</h2>
+
+<!-- Show account details in the admin user detail page -->
+<div style="margin-bottom:18px;">
+    <h3 style="color:#2980b9;">Account Details</h3>
+    <p><b>Account Name:</b> {{ user.account_name or 'Not provided' }}</p>
+    <p><b>Account Number:</b> {{ user.account_number or 'Not provided' }}</p>
+    <p><b>Bank Name:</b> {{ user.bank_name or 'Not provided' }}</p>
+</div>
+
+<form method="get" style="margin-bottom: 1em;">
+    <label>From: <input type="date" name="start_date" value="{{ start_date or '' }}"></label>
+    <label>To: <input type="date" name="end_date" value="{{ end_date or '' }}"></label>
+    <label>Language:
+        <select name="language_id">
+            <option value="">All</option>
+            {% for lang in languages %}
+                <option value="{{ lang.id }}" {% if selected_language_id and lang.id == selected_language_id|int %}selected{% endif %}>{{ lang.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit">Filter</button>
+    <a href="{{ url_for('admin_user_detail', user_id=user.id) }}">Clear</a>
+</form>
+
+<table>
+    <tr>
+        <th>Language</th>
+        <th>English</th>
+        <th>Translation</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Delete</th>
+    </tr>
+    {% for t in translations %}
+    <tr>
+        <td>{{ t.language.name if t.language else '' }}</td>
+        <td>{{ t.sentence.english_text if t.sentence else '' }}</td>
+        <td>{{ t.mumuye_translation }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else '' }}</td>
+        <td>
+            <form method="post" action="{{ url_for('admin_delete_translation', translation_id=t.id, user_id=user.id) }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Delete this translation?');">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<form method="post" action="{{ url_for('admin_delete_user', user_id=user.id) }}" onsubmit="return confirm('Are you sure you want to delete this user and all their translations?');" style="margin-bottom:18px;">
+    <button type="submit" style="background:#e74c3c; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-size:1em; cursor:pointer;">
+        Delete User & All Translations
+    </button>
+</form>
+<a href="{{ url_for('admin') }}">Back to Users</a>
+{% endblock %}

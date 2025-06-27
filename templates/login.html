@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Login</h2>
+<div style="display: flex; gap: 1em;">
+    <a href="{{ url_for('admin_login') }}"><button type="button">Admin Login</button></a>
+    <a href="{{ url_for('user_login') }}"><button type="button">User Login</button></a>
+    <a href="{{ url_for('register') }}"><button type="button">Register</button></a>
+</div>
+{% endblock %}
